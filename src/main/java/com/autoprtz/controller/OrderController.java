@@ -32,60 +32,41 @@ public class OrderController {
 
 
     // =========================
-    // DASHBOARD / HOME PAGE
+    // HOME PAGE
     // =========================
 
     @GetMapping("/")
+    public String index() {
+        return "index";
+    }
+
+
+    // =========================
+    // DASHBOARD
+    // =========================
+
+    @GetMapping("/dashboard")
     public String dashboard(Model model) {
 
-        List<Order> orders = orderRepository.findAll();
+        long totalOrders = orderRepository.count();
 
-        long totalOrders = orders.size();
+        long processing =
+                orderRepository.countByStatus(OrderStatus.PROCESSING);
 
-        long processingCount = orders.stream()
-                .filter(o -> o.getStatus() == OrderStatus.PROCESSING)
-                .count();
+        long sourced =
+                orderRepository.countByStatus(OrderStatus.SOURCED);
 
-        long sourcedCount = orders.stream()
-                .filter(o -> o.getStatus() == OrderStatus.SOURCED)
-                .count();
+        long hold =
+                orderRepository.countByStatus(OrderStatus.HOLD);
 
-        long holdCount = orders.stream()
-                .filter(o -> o.getStatus() == OrderStatus.HOLD)
-                .count();
+        long pendingPayment =
+                orderRepository.countByStatus(OrderStatus.PENDING_PAYMENT);
 
-        long pendingPaymentCount = orders.stream()
-                .filter(o -> o.getStatus() == OrderStatus.PENDING_PAYMENT)
-                .count();
+        long completed =
+                orderRepository.countByStatus(OrderStatus.COMPLETED);
 
-        long completedCount = orders.stream()
-                .filter(o -> o.getStatus() == OrderStatus.COMPLETED)
-                .count();
-
-
-        // Recent 5 orders
-        List<Order> recentOrders = orders.stream()
-                .sorted((a, b) -> {
-
-                    if (a.getId() == null && b.getId() == null) {
-                        return 0;
-                    }
-
-                    if (a.getId() == null) {
-                        return 1;
-                    }
-
-                    if (b.getId() == null) {
-                        return -1;
-                    }
-
-                    return Long.compare(
-                            b.getId(),
-                            a.getId()
-                    );
-                })
-                .limit(5)
-                .toList();
+        List<Order> recentOrders =
+                orderRepository.findTop10ByOrderByIdDesc();
 
 
         model.addAttribute(
@@ -94,28 +75,28 @@ public class OrderController {
         );
 
         model.addAttribute(
-                "processingCount",
-                processingCount
+                "processing",
+                processing
         );
 
         model.addAttribute(
-                "sourcedCount",
-                sourcedCount
+                "sourced",
+                sourced
         );
 
         model.addAttribute(
-                "holdCount",
-                holdCount
+                "hold",
+                hold
         );
 
         model.addAttribute(
-                "pendingPaymentCount",
-                pendingPaymentCount
+                "pendingPayment",
+                pendingPayment
         );
 
         model.addAttribute(
-                "completedCount",
-                completedCount
+                "completed",
+                completed
         );
 
         model.addAttribute(
@@ -140,10 +121,7 @@ public class OrderController {
         long count = orderRepository.count() + 1;
 
         String orderNumber =
-                String.format(
-                        "AP%06d",
-                        count
-                );
+                String.format("AP%06d", count);
 
         order.setOrderNumber(orderNumber);
 
@@ -173,21 +151,15 @@ public class OrderController {
                         + order.getOrderNumber()
         );
 
-
         Order newOrder = new Order();
 
         long count =
                 orderRepository.count() + 1;
 
         String orderNumber =
-                String.format(
-                        "AP%06d",
-                        count
-                );
+                String.format("AP%06d", count);
 
-        newOrder.setOrderNumber(
-                orderNumber
-        );
+        newOrder.setOrderNumber(orderNumber);
 
         model.addAttribute(
                 "order",
@@ -205,25 +177,19 @@ public class OrderController {
 
     @GetMapping("/orders")
     public String viewOrders(
-            @RequestParam(
-                    required = false
-            )
+            @RequestParam(required = false)
             String search,
 
-            @RequestParam(
-                    required = false
-            )
+            @RequestParam(required = false)
             String status,
 
             Model model) {
-
 
         List<Order> orders;
 
         boolean hasSearch =
                 search != null
                 && !search.trim().isEmpty();
-
 
         boolean hasStatus =
                 status != null
@@ -233,14 +199,12 @@ public class OrderController {
 
         // =========================
         // SEARCH
-        // ORDER NUMBER OR PHONE
         // =========================
 
         if (hasSearch) {
 
             String searchValue =
                     search.trim();
-
 
             orders =
                     orderRepository
@@ -269,20 +233,15 @@ public class OrderController {
                                 status.toUpperCase()
                         );
 
-
                 orders =
                         orders.stream()
                         .filter(order ->
                                 order.getStatus() != null
-                                &&
-                                order.getStatus()
-                                .equals(selectedStatus)
-                        )
+                                && order.getStatus()
+                                .equals(selectedStatus))
                         .toList();
 
-
-            } catch (
-                    IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
 
                 // Invalid status
                 // Show all orders
@@ -295,7 +254,6 @@ public class OrderController {
                 orders
         );
 
-
         model.addAttribute(
                 "search",
                 search != null
@@ -303,14 +261,12 @@ public class OrderController {
                         : ""
         );
 
-
         model.addAttribute(
                 "selectedStatus",
                 status != null
                         ? status
                         : "ALL"
         );
-
 
         model.addAttribute(
                 "statuses",
@@ -331,23 +287,19 @@ public class OrderController {
             @PathVariable Long id,
             Model model) {
 
-
         Order order =
                 orderRepository
                 .findById(id)
                 .orElseThrow(
                         () -> new RuntimeException(
-                                "Order not found: "
-                                + id
+                                "Order not found: " + id
                         )
                 );
-
 
         model.addAttribute(
                 "order",
                 order
         );
-
 
         return "view-order";
     }
@@ -363,48 +315,39 @@ public class OrderController {
             Order order,
             Model model) {
 
-
         Order existingOrder =
                 orderRepository
                 .findById(id)
                 .orElseThrow(
                         () -> new RuntimeException(
-                                "Order not found: "
-                                + id
+                                "Order not found: " + id
                         )
                 );
-
 
         order.setId(
                 existingOrder.getId()
         );
 
-
         orderService.saveOrder(order);
-
 
         Order updatedOrder =
                 orderRepository
                 .findById(id)
                 .orElseThrow(
                         () -> new RuntimeException(
-                                "Order not found: "
-                                + id
+                                "Order not found: " + id
                         )
                 );
-
 
         model.addAttribute(
                 "order",
                 updatedOrder
         );
 
-
         model.addAttribute(
                 "successMessage",
                 "Order updated successfully!"
         );
-
 
         return "view-order";
     }
@@ -417,47 +360,36 @@ public class OrderController {
     @PostMapping("/orders/{id}/notes")
     public String addNote(
             @PathVariable Long id,
-
             @RequestParam("note")
             String note) {
-
 
         Order order =
                 orderRepository
                 .findById(id)
                 .orElseThrow(
                         () -> new RuntimeException(
-                                "Order not found: "
-                                + id
+                                "Order not found: " + id
                         )
                 );
 
 
-        if (
-                note != null
-                &&
-                !note.trim().isEmpty()
-        ) {
-
+        if (note != null
+                && !note.trim().isEmpty()) {
 
             OrderNote orderNote =
                     new OrderNote();
-
 
             orderNote.setNote(
                     note.trim()
             );
 
-
             orderNote.setCreatedAt(
                     LocalDateTime.now()
             );
 
-
             orderNote.setOrder(
                     order
             );
-
 
             orderNoteRepository.save(
                     orderNote
