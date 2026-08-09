@@ -104,7 +104,6 @@ public class OrderController {
                 recentOrders
         );
 
-
         return "dashboard";
     }
 
@@ -125,6 +124,16 @@ public class OrderController {
 
         order.setOrderNumber(orderNumber);
 
+        // Default status
+        if (order.getStatus() == null) {
+            order.setStatus(OrderStatus.PROCESSING);
+        }
+
+        // Prevent NULL part_details
+        if (order.getPartDetails() == null) {
+            order.setPartDetails("");
+        }
+
         model.addAttribute(
                 "order",
                 order
@@ -143,13 +152,75 @@ public class OrderController {
             Order order,
             Model model) {
 
+
+        // =========================
+        // FIX NULL STATUS
+        // =========================
+
+        if (order.getStatus() == null) {
+            order.setStatus(OrderStatus.PROCESSING);
+        }
+
+
+        // =========================
+        // FIX NULL PART DETAILS
+        // =========================
+
+        if (order.getPartDetails() == null) {
+            order.setPartDetails("");
+        }
+
+
+        // =========================
+        // FIX NULL STRING VALUES
+        // =========================
+
+        if (order.getCustomerName() == null) {
+            order.setCustomerName("");
+        }
+
+        if (order.getOrigin() == null) {
+            order.setOrigin("");
+        }
+
+        if (order.getReceiverName() == null) {
+            order.setReceiverName("");
+        }
+
+        if (order.getPhoneNumber() == null) {
+            order.setPhoneNumber("");
+        }
+
+        if (order.getLocation() == null) {
+            order.setLocation("");
+        }
+
+        if (order.getDescription() == null) {
+            order.setDescription("");
+        }
+
+
+        // =========================
+        // SAVE
+        // =========================
+
         orderService.saveOrder(order);
+
+
+        // =========================
+        // SUCCESS MESSAGE
+        // =========================
 
         model.addAttribute(
                 "successMessage",
                 "Order Submitted Successfully! Order No : "
                         + order.getOrderNumber()
         );
+
+
+        // =========================
+        // PREPARE NEXT ORDER
+        // =========================
 
         Order newOrder = new Order();
 
@@ -159,7 +230,18 @@ public class OrderController {
         String orderNumber =
                 String.format("AP%06d", count);
 
-        newOrder.setOrderNumber(orderNumber);
+        newOrder.setOrderNumber(
+                orderNumber
+        );
+
+        newOrder.setStatus(
+                OrderStatus.PROCESSING
+        );
+
+        newOrder.setPartDetails(
+                ""
+        );
+
 
         model.addAttribute(
                 "order",
@@ -184,6 +266,7 @@ public class OrderController {
             String status,
 
             Model model) {
+
 
         List<Order> orders;
 
@@ -287,6 +370,7 @@ public class OrderController {
             @PathVariable Long id,
             Model model) {
 
+
         Order order =
                 orderRepository
                 .findById(id)
@@ -295,6 +379,19 @@ public class OrderController {
                                 "Order not found: " + id
                         )
                 );
+
+
+        // Safety for old orders
+        if (order.getStatus() == null) {
+            order.setStatus(
+                    OrderStatus.PROCESSING
+            );
+        }
+
+        if (order.getPartDetails() == null) {
+            order.setPartDetails("");
+        }
+
 
         model.addAttribute(
                 "order",
@@ -315,6 +412,7 @@ public class OrderController {
             Order order,
             Model model) {
 
+
         Order existingOrder =
                 orderRepository
                 .findById(id)
@@ -324,11 +422,54 @@ public class OrderController {
                         )
                 );
 
+
+        // Keep existing ID
         order.setId(
                 existingOrder.getId()
         );
 
+
+        // =========================
+        // NULL SAFETY
+        // =========================
+
+        if (order.getStatus() == null) {
+            order.setStatus(
+                    OrderStatus.PROCESSING
+            );
+        }
+
+        if (order.getPartDetails() == null) {
+            order.setPartDetails("");
+        }
+
+        if (order.getCustomerName() == null) {
+            order.setCustomerName("");
+        }
+
+        if (order.getOrigin() == null) {
+            order.setOrigin("");
+        }
+
+        if (order.getReceiverName() == null) {
+            order.setReceiverName("");
+        }
+
+        if (order.getPhoneNumber() == null) {
+            order.setPhoneNumber("");
+        }
+
+        if (order.getLocation() == null) {
+            order.setLocation("");
+        }
+
+        if (order.getDescription() == null) {
+            order.setDescription("");
+        }
+
+
         orderService.saveOrder(order);
+
 
         Order updatedOrder =
                 orderRepository
@@ -339,6 +480,7 @@ public class OrderController {
                         )
                 );
 
+
         model.addAttribute(
                 "order",
                 updatedOrder
@@ -348,6 +490,7 @@ public class OrderController {
                 "successMessage",
                 "Order updated successfully!"
         );
+
 
         return "view-order";
     }
@@ -363,6 +506,7 @@ public class OrderController {
             @RequestParam("note")
             String note) {
 
+
         Order order =
                 orderRepository
                 .findById(id)
@@ -376,20 +520,25 @@ public class OrderController {
         if (note != null
                 && !note.trim().isEmpty()) {
 
+
             OrderNote orderNote =
                     new OrderNote();
+
 
             orderNote.setNote(
                     note.trim()
             );
 
+
             orderNote.setCreatedAt(
                     LocalDateTime.now()
             );
 
+
             orderNote.setOrder(
                     order
             );
+
 
             orderNoteRepository.save(
                     orderNote
@@ -399,4 +548,5 @@ public class OrderController {
 
         return "redirect:/orders/" + id;
     }
+
 }
