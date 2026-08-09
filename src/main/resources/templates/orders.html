@@ -1,62 +1,754 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
 
 <head>
 
-<meta charset="UTF-8">
-<title>View Orders</title>
+    <meta charset="UTF-8">
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>AutoPrtz - Orders</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+    <style>
+
+        body {
+            background: #f5f7fa;
+        }
+
+        .orders-container {
+            max-width: 1500px;
+            margin: 40px auto;
+        }
+
+        .orders-card {
+            border: none;
+            border-radius: 16px;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table th {
+            white-space: nowrap;
+            font-size: 14px;
+        }
+
+        .table td {
+            vertical-align: middle;
+            font-size: 14px;
+        }
+
+        .order-number {
+            font-weight: 700;
+        }
+
+        .vendor-address-cell {
+            min-width: 220px;
+            max-width: 300px;
+        }
+
+        .location-cell {
+            min-width: 150px;
+        }
+
+        .vendor-cell {
+            min-width: 150px;
+        }
+
+        .sourcing-cell {
+            min-width: 160px;
+        }
+
+        .status-badge {
+            padding: 7px 13px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+            display: inline-block;
+        }
+
+        /* =========================
+           STATUS COLORS
+           ========================= */
+
+        .status-processing {
+            background: #198754;
+            color: white;
+        }
+
+        .status-sourced {
+            background: #fd7e14;
+            color: white;
+        }
+
+        .status-hold {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .status-cancelled {
+            background: #dc3545;
+            color: white;
+        }
+
+        .status-pending {
+            background: #6f42c1;
+            color: white;
+        }
+
+        .status-payment {
+            background: #0d6efd;
+            color: white;
+        }
+
+        .status-delivery {
+            background: #0dcaf0;
+            color: #212529;
+        }
+
+        .status-completed {
+            background: #146c43;
+            color: white;
+        }
+
+        /* =========================
+           SEARCH AREA
+           ========================= */
+
+        .search-box {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .search-input {
+            min-height: 45px;
+        }
+
+        .search-btn {
+            min-height: 45px;
+            min-width: 100px;
+        }
+
+        .filter-select {
+            min-height: 45px;
+        }
+
+        .open-btn {
+            min-width: 75px;
+        }
+
+    </style>
 
 </head>
 
+
 <body>
 
-<div class="container mt-4">
 
-    <h2 class="text-center mb-4">Customer Orders</h2>
+<!-- =========================
+     NAVIGATION BAR
+     ========================= -->
 
-    <table class="table table-bordered table-striped">
+<nav class="navbar navbar-expand-lg bg-dark navbar-dark shadow-sm">
 
-        <thead class="table-dark">
+    <div class="container-fluid">
 
-        <tr>
-            <th>Order No</th>
-            <th>Customer</th>
-            <th>Origin</th>
-            <th>Receiver</th>
-            <th>Phone</th>
-            <th>Location</th>
-            <th>Part</th>
-            <th>Description</th>
-        </tr>
+        <a class="navbar-brand fw-bold"
+           href="/dashboard">
 
-        </thead>
+            AutoPrtz
 
-        <tbody>
+        </a>
 
-        <tr th:each="order : ${orders}">
 
-            <td th:text="${order.orderNumber}"></td>
-            <td th:text="${order.customerName}"></td>
-            <td th:text="${order.origin}"></td>
-            <td th:text="${order.receiverName}"></td>
-            <td th:text="${order.phoneNumber}"></td>
-            <td th:text="${order.location}"></td>
-            <td th:text="${order.partDetails}"></td>
-            <td th:text="${order.description}"></td>
+        <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#mainNavbar">
 
-        </tr>
+            <span class="navbar-toggler-icon"></span>
 
-        </tbody>
+        </button>
 
-    </table>
 
-    <a href="/" class="btn btn-primary">
-        Back
-    </a>
+        <div class="collapse navbar-collapse"
+             id="mainNavbar">
+
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+
+                <!-- DASHBOARD -->
+
+                <li class="nav-item">
+
+                    <a class="nav-link"
+                       href="/dashboard">
+
+                        Dashboard
+
+                    </a>
+
+                </li>
+
+
+                <!-- ORDERS -->
+
+                <li class="nav-item">
+
+                    <a class="nav-link active"
+                       href="/orders">
+
+                        Orders
+
+                    </a>
+
+                </li>
+
+
+                <!-- NEW ORDER -->
+
+                <li class="nav-item">
+
+                    <a class="nav-link"
+                       href="/place-order">
+
+                        + New Order
+
+                    </a>
+
+                </li>
+
+            </ul>
+
+        </div>
+
+    </div>
+
+</nav>
+
+
+
+<!-- =========================
+     MAIN CONTENT
+     ========================= -->
+
+<div class="container-fluid orders-container">
+
+    <div class="card shadow orders-card">
+
+        <div class="card-body p-4">
+
+
+            <!-- =========================
+                 HEADER
+                 ========================= -->
+
+            <div class="d-flex justify-content-between
+                        align-items-center mb-4">
+
+                <div>
+
+                    <h2 class="mb-1">
+                        AutoPrtz Orders
+                    </h2>
+
+                    <p class="text-muted mb-0">
+                        All Customer Orders
+                    </p>
+
+                </div>
+
+
+                <a href="/place-order"
+                   class="btn btn-primary">
+
+                    + New Order
+
+                </a>
+
+            </div>
+
+
+
+            <!-- =========================
+                 SEARCH + FILTER
+                 ========================= -->
+
+            <div class="search-box">
+
+                <form action="/orders"
+                      method="get">
+
+                    <div class="row g-3 align-items-end">
+
+
+                        <!-- SEARCH -->
+
+                        <div class="col-lg-7">
+
+                            <label class="form-label fw-semibold">
+
+                                Search
+
+                            </label>
+
+                            <input
+                                type="text"
+                                name="search"
+                                class="form-control search-input"
+                                th:value="${search}"
+                                placeholder="Order Number / Phone Number">
+
+                        </div>
+
+
+                        <!-- STATUS -->
+
+                        <div class="col-lg-3">
+
+                            <label class="form-label fw-semibold">
+
+                                Status
+
+                            </label>
+
+                            <select
+                                name="status"
+                                class="form-select filter-select">
+
+                                <option
+                                    value="ALL"
+                                    th:selected="${selectedStatus == 'ALL'}">
+
+                                    All
+
+                                </option>
+
+
+                                <option
+                                    th:each="status : ${statuses}"
+                                    th:value="${status.name()}"
+                                    th:text="${#strings.replace(
+                                        status.name(),
+                                        '_',
+                                        ' '
+                                    )}"
+                                    th:selected="${selectedStatus == status.name()}">
+
+                                    PROCESSING
+
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- SEARCH BUTTON -->
+
+                        <div class="col-lg-2">
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary w-100 search-btn">
+
+                                🔍 Search
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+
+                <!-- CLEAR FILTER -->
+
+                <div class="mt-3"
+                     th:if="${(search != null and !#strings.isEmpty(search))
+                             or (selectedStatus != null
+                             and selectedStatus != 'ALL')}">
+
+                    <a href="/orders"
+                       class="btn btn-sm btn-outline-secondary">
+
+                        Clear Search & Filter
+
+                    </a>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =========================
+                 SUCCESS MESSAGE
+                 ========================= -->
+
+            <div th:if="${successMessage}"
+                 class="alert alert-success">
+
+                <span th:text="${successMessage}">
+
+                    Order updated successfully!
+
+                </span>
+
+            </div>
+
+
+
+            <!-- =========================
+                 SEARCH RESULT
+                 ========================= -->
+
+            <div
+                th:if="${search != null and !#strings.isEmpty(search)}"
+                class="alert alert-info">
+
+                Search results for:
+
+                <strong th:text="${search}">
+                    AP000001
+                </strong>
+
+            </div>
+
+
+
+            <!-- =========================
+                 NO ORDERS
+                 ========================= -->
+
+            <div
+                th:if="${#lists.isEmpty(orders)}"
+                class="alert alert-warning">
+
+                No orders found.
+
+            </div>
+
+
+
+            <!-- =========================
+                 ORDERS TABLE
+                 ========================= -->
+
+            <div
+                th:if="${not #lists.isEmpty(orders)}"
+                class="table-responsive">
+
+                <table class="table table-hover align-middle">
+
+
+                    <!-- TABLE HEADER -->
+
+                    <thead class="table-dark">
+
+                    <tr>
+
+                        <th>
+                            Order Number
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Vendor
+                        </th>
+
+                        <th>
+                            Sourcing Person
+                        </th>
+
+                        <th>
+                            Vendor Address
+                        </th>
+
+                        <th>
+                            Customer Location
+                        </th>
+
+                        <th>
+                            Price
+                        </th>
+
+                        <th>
+                            Action
+                        </th>
+
+                    </tr>
+
+                    </thead>
+
+
+
+                    <!-- TABLE BODY -->
+
+                    <tbody>
+
+                    <tr th:each="order : ${orders}">
+
+
+                        <!-- =========================
+                             ORDER NUMBER
+                             ========================= -->
+
+                        <td>
+
+                            <span
+                                class="order-number"
+                                th:text="${order.orderNumber}">
+
+                                AP000001
+
+                            </span>
+
+                        </td>
+
+
+
+                        <!-- =========================
+                             STATUS
+                             ========================= -->
+
+                        <td>
+
+                            <span
+                                class="status-badge"
+
+                                th:classappend="${order.status == null
+                                    or order.status.name() == 'PROCESSING'
+                                    ? ' status-processing' :
+
+                                    order.status.name() == 'SOURCED'
+                                    ? ' status-sourced' :
+
+                                    order.status.name() == 'HOLD'
+                                    ? ' status-hold' :
+
+                                    order.status.name() == 'CANCELLED'
+                                    ? ' status-cancelled' :
+
+                                    order.status.name() == 'PENDING_PAYMENT'
+                                    ? ' status-pending' :
+
+                                    order.status.name() == 'PAYMENT_COMPLETED'
+                                    ? ' status-payment' :
+
+                                    order.status.name() == 'OUT_OF_DELIVERY'
+                                    ? ' status-delivery' :
+
+                                    ' status-completed'}"
+
+                                th:text="${order.status != null
+                                    ? #strings.replace(
+                                        order.status.name(),
+                                        '_',
+                                        ' '
+                                      )
+                                    : 'PROCESSING'}">
+
+                                PROCESSING
+
+                            </span>
+
+                        </td>
+
+
+
+                        <!-- =========================
+                             VENDOR
+                             ========================= -->
+
+                        <td class="vendor-cell">
+
+                            <span
+                                th:if="${order.vendor != null
+                                    and !#strings.isEmpty(order.vendor)}"
+                                th:text="${order.vendor}">
+
+                                ABC Parts
+
+                            </span>
+
+
+                            <span
+                                th:if="${order.vendor == null
+                                    or #strings.isEmpty(order.vendor)}"
+                                class="text-muted">
+
+                                -
+
+                            </span>
+
+                        </td>
+
+
+
+                        <!-- =========================
+                             SOURCING PERSON
+                             ========================= -->
+
+                        <td class="sourcing-cell">
+
+                            <span
+                                th:if="${order.sourcingPerson != null
+                                    and !#strings.isEmpty(order.sourcingPerson)}"
+                                th:text="${order.sourcingPerson}">
+
+                                Rahul
+
+                            </span>
+
+
+                            <span
+                                th:if="${order.sourcingPerson == null
+                                    or #strings.isEmpty(order.sourcingPerson)}"
+                                class="text-muted">
+
+                                -
+
+                            </span>
+
+                        </td>
+
+
+
+                        <!-- =========================
+                             VENDOR ADDRESS
+                             ========================= -->
+
+                        <td class="vendor-address-cell">
+
+                            <span
+                                th:if="${order.address != null
+                                    and !#strings.isEmpty(order.address)}"
+                                th:text="${order.address}">
+
+                                Hyderabad, Telangana
+
+                            </span>
+
+
+                            <span
+                                th:if="${order.address == null
+                                    or #strings.isEmpty(order.address)}"
+                                class="text-muted">
+
+                                -
+
+                            </span>
+
+                        </td>
+
+
+
+                        <!-- =========================
+                             CUSTOMER LOCATION
+                             ========================= -->
+
+                        <td class="location-cell">
+
+                            <span
+                                th:text="${order.location}">
+
+                                Hyderabad
+
+                            </span>
+
+                        </td>
+
+
+
+                        <!-- =========================
+                             PRICE
+                             ========================= -->
+
+                        <td>
+
+                            <span
+                                th:if="${order.price != null}">
+
+                                ₹<span
+                                    th:text="${order.price}">
+
+                                    25000.00
+
+                                </span>
+
+                            </span>
+
+
+                            <span
+                                th:if="${order.price == null}"
+                                class="text-muted">
+
+                                -
+
+                            </span>
+
+                        </td>
+
+
+
+                        <!-- =========================
+                             ACTION
+                             ========================= -->
+
+                        <td>
+
+                            <a
+                                th:href="@{/orders/{id}(id=${order.id})}"
+                                class="btn btn-sm btn-primary open-btn">
+
+                                Open
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+        </div>
+
+    </div>
 
 </div>
 
+
+
+<!-- =========================
+     BOOTSTRAP JS
+     ========================= -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+
 </body>
+
 </html>

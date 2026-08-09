@@ -1,86 +1,545 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-<meta charset="UTF-8">
-<title>AutoPrtz Orders</title>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" th:href="@{/css/style.css}">
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>AutoPrtz - Custom Order</title>
+
+    <!-- Bootstrap 5 -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+    <style>
+
+        body {
+            background: #f5f7fa;
+        }
+
+        .order-container {
+            max-width: 950px;
+            margin: 40px auto;
+        }
+
+        .order-card {
+            border: none;
+            border-radius: 16px;
+        }
+
+        .section-title {
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .product-card {
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #ffffff;
+        }
+
+        .image-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .image-preview img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .remove-product {
+            float: right;
+        }
+
+    </style>
 
 </head>
 
 <body>
 
-<div class="container mt-5">
+<div class="container order-container">
 
-    <div class="card shadow p-4">
+    <div class="card shadow order-card">
 
-        <h2 class="text-center mb-4">AutoPrtz Customer Order</h2>
+        <div class="card-body p-4 p-md-5">
 
-        <div th:if="${success}" class="alert alert-success">
-            <span th:text="${success}"></span>
+            <h2 class="text-center mb-2">
+                AutoPrtz Custom Order
+            </h2>
+
+            <p class="text-center text-muted mb-4">
+                Submit your automobile spare parts requirement
+            </p>
+
+            <!-- Success Message -->
+            <div th:if="${successMessage}"
+                 class="alert alert-success">
+
+                <span th:text="${successMessage}"></span>
+
+            </div>
+
+            <form th:action="@{/saveOrder}"
+                  th:object="${order}"
+                  method="post"
+                  enctype="multipart/form-data">
+
+                <!-- ========================= -->
+                <!-- ORDER INFORMATION -->
+                <!-- ========================= -->
+
+                <div class="mb-4">
+
+                    <h5 class="section-title">
+                        Order Information
+                    </h5>
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">
+                                Order Number
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   th:field="*{orderNumber}"
+                                   readonly>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ========================= -->
+                <!-- CUSTOMER INFORMATION -->
+                <!-- ========================= -->
+
+                <div class="mb-4">
+
+                    <h5 class="section-title">
+                        Customer Information
+                    </h5>
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">
+                                Customer Name *
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   th:field="*{customerName}"
+                                   required>
+
+                        </div>
+
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">
+                                Phone Number *
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   th:field="*{phoneNumber}"
+                                   required>
+
+                        </div>
+
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">
+                                Email
+                            </label>
+
+                            <input type="email"
+                                   class="form-control"
+                                   th:field="*{email}">
+
+                        </div>
+
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">
+                                Origin *
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   th:field="*{origin}"
+                                   required>
+
+                        </div>
+
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">
+                                Receiver Name *
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   th:field="*{receiverName}"
+                                   required>
+
+                        </div>
+
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">
+                                Customer Location *
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   th:field="*{location}"
+                                   required>
+
+                        </div>
+
+
+                        <div class="col-12 mb-3">
+
+                            <label class="form-label">
+                                Address
+                            </label>
+
+                            <textarea
+                                class="form-control"
+                                rows="3"
+                                th:field="*{address}">
+                            </textarea>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ========================= -->
+                <!-- PRODUCT INFORMATION -->
+                <!-- ========================= -->
+
+                <div class="mb-4">
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+
+                        <h5 class="section-title mb-0">
+                            Product Requirements
+                        </h5>
+
+                        <button type="button"
+                                class="btn btn-outline-primary btn-sm"
+                                onclick="addProduct()">
+
+                            + Add Another Product
+
+                        </button>
+
+                    </div>
+
+
+                    <div id="productsContainer">
+
+                        <!-- PRODUCT 1 -->
+
+                        <div class="product-card">
+
+                            <div class="d-flex justify-content-between">
+
+                                <h6>
+                                    Product #1
+                                </h6>
+
+                            </div>
+
+
+                            <div class="row">
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+                                        Product Name *
+                                    </label>
+
+                                    <input type="text"
+                                           class="form-control"
+                                           name="products[0].productName"
+                                           required>
+
+                                </div>
+
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+                                        Quantity *
+                                    </label>
+
+                                    <input type="number"
+                                           class="form-control"
+                                           name="products[0].quantity"
+                                           min="1"
+                                           value="1"
+                                           required>
+
+                                </div>
+
+
+                                <div class="col-12 mb-3">
+
+                                    <label class="form-label">
+                                        Product Images
+                                    </label>
+
+                                    <input type="file"
+                                           class="form-control product-images"
+                                           name="productImages[0]"
+                                           accept="image/*"
+                                           multiple
+                                           onchange="previewImages(this)">
+
+                                    <div class="image-preview"></div>
+
+                                </div>
+
+
+                                <div class="col-12 mb-3">
+
+                                    <label class="form-label">
+                                        Detailed Specifications
+                                    </label>
+
+                                    <textarea
+                                        class="form-control"
+                                        rows="4"
+                                        name="products[0].specifications"
+                                        placeholder="Enter part number, vehicle model, year, size, brand, etc.">
+                                    </textarea>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ========================= -->
+                <!-- ADDITIONAL DESCRIPTION -->
+                <!-- ========================= -->
+
+                <div class="mb-4">
+
+                    <h5 class="section-title">
+                        Additional Information
+                    </h5>
+
+                    <textarea
+                        class="form-control"
+                        rows="4"
+                        th:field="*{description}"
+                        placeholder="Any additional requirements...">
+                    </textarea>
+
+                </div>
+
+
+                <!-- ========================= -->
+                <!-- SUBMIT -->
+                <!-- ========================= -->
+
+                <button type="submit"
+                        class="btn btn-primary btn-lg w-100">
+
+                    Submit Custom Order
+
+                </button>
+
+            </form>
+
         </div>
-
-        <form th:action="@{/saveOrder}" th:object="${order}" method="post">
-
-            <div class="mb-3">
-                <label class="form-label">Order Number</label>
-                <input type="text" class="form-control"
-                       th:field="*{orderNumber}" readonly>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Customer Name</label>
-                <input type="text" class="form-control"
-                       th:field="*{customerName}" required>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Origin</label>
-                <input type="text" class="form-control"
-                       th:field="*{origin}" required>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Receiver Name</label>
-                <input type="text" class="form-control"
-                       th:field="*{receiverName}" required>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Phone Number</label>
-                <input type="text" class="form-control"
-                       th:field="*{phoneNumber}" required>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Location</label>
-                <input type="text" class="form-control"
-                       th:field="*{location}" required>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Part Details</label>
-                <input type="text" class="form-control"
-                       th:field="*{partDetails}" required>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Description</label>
-                <textarea class="form-control"
-                          rows="4"
-                          th:field="*{description}"></textarea>
-            </div>
-
-            <button type="submit" class="btn btn-primary w-100">
-                Submit Order
-            </button>
-
-        </form>
 
     </div>
 
 </div>
 
+
+<script>
+
+let productIndex = 1;
+
+
+function addProduct() {
+
+    const container =
+        document.getElementById("productsContainer");
+
+    const product =
+        document.createElement("div");
+
+    product.className = "product-card";
+
+    product.innerHTML = `
+
+        <div class="d-flex justify-content-between mb-3">
+
+            <h6>
+                Product #${productIndex + 1}
+            </h6>
+
+            <button type="button"
+                    class="btn btn-outline-danger btn-sm"
+                    onclick="this.closest('.product-card').remove()">
+
+                Remove
+
+            </button>
+
+        </div>
+
+
+        <div class="row">
+
+            <div class="col-md-6 mb-3">
+
+                <label class="form-label">
+                    Product Name *
+                </label>
+
+                <input type="text"
+                       class="form-control"
+                       name="products[${productIndex}].productName"
+                       required>
+
+            </div>
+
+
+            <div class="col-md-6 mb-3">
+
+                <label class="form-label">
+                    Quantity *
+                </label>
+
+                <input type="number"
+                       class="form-control"
+                       name="products[${productIndex}].quantity"
+                       min="1"
+                       value="1"
+                       required>
+
+            </div>
+
+
+            <div class="col-12 mb-3">
+
+                <label class="form-label">
+                    Product Images
+                </label>
+
+                <input type="file"
+                       class="form-control product-images"
+                       name="productImages[${productIndex}]"
+                       accept="image/*"
+                       multiple
+                       onchange="previewImages(this)">
+
+                <div class="image-preview"></div>
+
+            </div>
+
+
+            <div class="col-12 mb-3">
+
+                <label class="form-label">
+                    Detailed Specifications
+                </label>
+
+                <textarea
+                    class="form-control"
+                    rows="4"
+                    name="products[${productIndex}].specifications"
+                    placeholder="Enter part number, vehicle model, year, size, brand, etc.">
+                </textarea>
+
+            </div>
+
+        </div>
+    `;
+
+    container.appendChild(product);
+
+    productIndex++;
+
+}
+
+
+function previewImages(input) {
+
+    const preview =
+        input.parentElement.querySelector(".image-preview");
+
+    preview.innerHTML = "";
+
+    if (!input.files) {
+        return;
+    }
+
+    Array.from(input.files).forEach(file => {
+
+        if (!file.type.startsWith("image/")) {
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = function(event) {
+
+            const img =
+                document.createElement("img");
+
+            img.src = event.target.result;
+
+            preview.appendChild(img);
+
+        };
+
+        reader.readAsDataURL(file);
+
+    });
+
+}
+
+</script>
+
 </body>
+
 </html>

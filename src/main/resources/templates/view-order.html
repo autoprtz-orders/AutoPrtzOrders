@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>AutoPrtz - View Order</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+    <style>
+
+        body {
+            background: #f5f7fa;
+        }
+
+        .page-container {
+            max-width: 1400px;
+            margin: 35px auto;
+        }
+
+        .main-card {
+            border: none;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: #212529;
+            color: white;
+            padding: 25px;
+        }
+
+        .section-card {
+            border: none;
+            border-radius: 14px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .value {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        /* =========================
+           STATUS COLORS
+           ========================= */
+
+        .status-badge {
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        .status-processing {
+            background: #198754;
+            color: white;
+        }
+
+        .status-sourced {
+            background: #fd7e14;
+            color: white;
+        }
+
+        .status-hold {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .status-cancelled {
+            background: #dc3545;
+            color: white;
+        }
+
+        .status-pending {
+            background: #6f42c1;
+            color: white;
+        }
+
+        .status-payment {
+            background: #0d6efd;
+            color: white;
+        }
+
+        .status-delivery {
+            background: #0dcaf0;
+            color: #212529;
+        }
+
+        .status-completed {
+            background: #146c43;
+            color: white;
+        }
+
+        /* =========================
+           PRODUCT
+           ========================= */
+
+        .product-card {
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .product-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .image-box {
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 8px;
+            background: white;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        /* =========================
+           NOTES
+           ========================= */
+
+        .note-item {
+            border-left: 4px solid #0d6efd;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+        }
+
+        .note-text {
+            font-size: 15px;
+            white-space: pre-wrap;
+        }
+
+        .note-date {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 7px;
+        }
+
+        .add-note-box {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .action-bar {
+            position: sticky;
+            bottom: 0;
+            background: white;
+            border-top: 1px solid #ddd;
+            padding: 15px;
+            z-index: 10;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="container-fluid page-container">
+
+    <div class="card shadow main-card">
+
+
+        <!-- =========================
+             HEADER
+             ========================= -->
+
+        <div class="header">
+
+            <div class="d-flex justify-content-between
+                        align-items-center flex-wrap gap-3">
+
+                <div>
+
+                    <div class="small text-white-50">
+                        AUTOPRTZ CUSTOMER ORDER
+                    </div>
+
+                    <h2 class="mb-1"
+                        th:text="${order.orderNumber}">
+                        AP000001
+                    </h2>
+
+                    <div class="text-white-50">
+                        Complete Order Details
+                    </div>
+
+                </div>
+
+                <a href="/orders"
+                   class="btn btn-light">
+
+                    ← Back to Orders
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="card-body p-4">
+
+
+            <!-- =========================
+                 SUCCESS MESSAGE
+                 ========================= -->
+
+            <div th:if="${successMessage}"
+                 class="alert alert-success">
+
+                <span th:text="${successMessage}">
+                    Order updated successfully!
+                </span>
+
+            </div>
+
+
+            <!-- =========================
+                 ORDER DETAILS
+                 ========================= -->
+
+            <div class="card section-card">
+
+                <div class="card-body p-4">
+
+                    <div class="section-title">
+                        Order Details
+                    </div>
+
+                    <div class="row g-4">
+
+
+                        <div class="col-md-4">
+
+                            <div class="label">
+                                Order Number
+                            </div>
+
+                            <div class="value"
+                                 th:text="${order.orderNumber}">
+                                AP000001
+                            </div>
+
+                        </div>
+
+
+                        <!-- STATUS -->
+
+                        <div class="col-md-4">
+
+                            <div class="label">
+                                Status
+                            </div>
+
+                            <span class="status-badge"
+                                  th:classappend="${order.status.name() == 'PROCESSING'
+                                      ? ' status-processing' :
+                                      order.status.name() == 'SOURCED'
+                                      ? ' status-sourced' :
+                                      order.status.name() == 'HOLD'
+                                      ? ' status-hold' :
+                                      order.status.name() == 'CANCELLED'
+                                      ? ' status-cancelled' :
+                                      order.status.name() == 'PENDING_PAYMENT'
+                                      ? ' status-pending' :
+                                      order.status.name() == 'PAYMENT_COMPLETED'
+                                      ? ' status-payment' :
+                                      order.status.name() == 'OUT_OF_DELIVERY'
+                                      ? ' status-delivery' :
+                                      ' status-completed'}"
+                                  th:text="${#strings.replace(order.status.name(), '_', ' ')}">
+
+                                PROCESSING
+
+                            </span>
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <div class="label">
+                                Price
+                            </div>
+
+                            <div class="value">
+
+                                <span th:if="${order.price != null}">
+                                    ₹<span th:text="${order.price}">
+                                        0.00
+                                    </span>
+                                </span>
+
+                                <span th:if="${order.price == null}">
+                                    -
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <div class="label">
+                                Vendor
+                            </div>
+
+                            <div class="value"
+                                 th:text="${order.vendor != null
+                                    ? order.vendor : '-'}">
+                                -
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <div class="label">
+                                Sourcing Person
+                            </div>
+
+                            <div class="value"
+                                 th:text="${order.sourcingPerson != null
+                                    ? order.sourcingPerson : '-'}">
+                                -
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <div class="label">
+                                Vendor Address
+                            </div>
+
+                            <div class="value"
+                                 th:text="${order.address != null
+                                    ? order.address : '-'}">
+                                -
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <div class="label">
+                                Customer Location
+                            </div>
+
+                            <div class="value"
+                                 th:text="${order.location}">
+                                -
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <div class="label">
+                                Origin
+                            </div>
+
+                            <div class="value"
+                                 th:text="${order.origin}">
+                                -
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 CUSTOMER DETAILS
+                 ========================= -->
+
+            <div class="card section-card">
+
+                <div class="card-body p-4">
+
+                    <div class="section-title">
+                        Customer Details
+                    </div>
+
+                    <div class="row g-4">
+
+                        <div class="col-md-6">
+
+                            <div class="label">
+                                Customer Name
+                            </div>
+
+                            <div class="value"
+                                 th:text="${order.customerName}">
+                                -
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <div class="label">
+                                Receiver Name
+                            </div>
+
+                            <div class="value"
+                                 th:text="${order.receiverName}">
+                                -
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <div class="label">
+                                Phone Number
+                            </div>
+
+                            <div class="value"
+                                 th:text="${order.phoneNumber}">
+                                -
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <div class="label">
+                                Email
+                            </div>
+
+                            <div class="value"
+                                 th:text="${order.email != null
+                                    ? order.email : '-'}">
+                                -
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-12">
+
+                            <div class="label">
+                                Description
+                            </div>
+
+                            <div class="value"
+                                 th:text="${order.description != null
+                                    ? order.description : '-'}">
+                                -
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 PART DETAILS
+                 ========================= -->
+
+            <div class="card section-card">
+
+                <div class="card-body p-4">
+
+                    <div class="section-title">
+                        Part Details
+                    </div>
+
+                    <div class="value"
+                         th:text="${order.partDetails}">
+                        -
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 PRODUCTS
+                 ========================= -->
+
+            <div class="card section-card">
+
+                <div class="card-body p-4">
+
+                    <div class="section-title">
+                        Products
+                    </div>
+
+
+                    <div th:if="${#lists.isEmpty(order.products)}"
+                         class="alert alert-info">
+
+                        No products added to this order.
+
+                    </div>
+
+
+                    <div th:each="product, stat : ${order.products}"
+                         class="product-card">
+
+                        <div class="product-title mb-3">
+
+                            Product
+                            <span th:text="${stat.count}">
+                                1
+                            </span>
+
+                        </div>
+
+
+                        <div class="row g-4">
+
+
+                            <div class="col-md-6">
+
+                                <div class="label">
+                                    Product Name
+                                </div>
+
+                                <div class="value"
+                                     th:text="${product.productName}">
+                                    -
+                                </div>
+
+                            </div>
+
+
+                            <div class="col-md-3">
+
+                                <div class="label">
+                                    Quantity
+                                </div>
+
+                                <div class="value"
+                                     th:text="${product.quantity}">
+                                    -
+                                </div>
+
+                            </div>
+
+
+                            <div class="col-12">
+
+                                <div class="label">
+                                    Specifications
+                                </div>
+
+                                <div class="value"
+                                     th:text="${product.specifications != null
+                                        ? product.specifications : '-'}">
+                                    -
+                                </div>
+
+                            </div>
+
+
+                            <div class="col-12">
+
+                                <div class="label mb-2">
+                                    Product Images
+                                </div>
+
+                                <div class="row g-3">
+
+
+                                    <div th:if="${product.images == null
+                                                or #lists.isEmpty(product.images)}"
+                                         class="col-12">
+
+                                        <span class="text-muted">
+                                            No images uploaded.
+                                        </span>
+
+                                    </div>
+
+
+                                    <div th:each="image : ${product.images}"
+                                         class="col-lg-3 col-md-4 col-sm-6">
+
+                                        <div class="image-box">
+
+                                            <img th:src="${image.imageUrl}"
+                                                 alt="Product Image"
+                                                 class="product-image">
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 NOTES
+                 ========================= -->
+
+            <div class="card section-card">
+
+                <div class="card-body p-4">
+
+                    <div class="d-flex justify-content-between
+                                align-items-center mb-3">
+
+                        <div class="section-title mb-0">
+                            Order Notes
+                        </div>
+
+                    </div>
+
+
+                    <!-- SAVED NOTES -->
+
+                    <div th:if="${order.notes != null
+                                and !#lists.isEmpty(order.notes)}">
+
+                        <div th:each="orderNote : ${order.notes}"
+                             class="note-item">
+
+                            <div class="note-text"
+                                 th:text="${orderNote.note}">
+                                Note
+                            </div>
+
+                            <div class="note-date">
+
+                                Added:
+
+                                <span th:text="${#temporals.format(
+                                    orderNote.createdAt,
+                                    'dd-MM-yyyy HH:mm'
+                                )}">
+                                    09-08-2026 18:30
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- NO NOTES -->
+
+                    <div th:if="${order.notes == null
+                                or #lists.isEmpty(order.notes)}"
+                         class="text-muted mb-3">
+
+                        No notes added yet.
+
+                    </div>
+
+
+                    <!-- ADD NOTE -->
+
+                    <div class="add-note-box mt-3">
+
+                        <h6 class="fw-bold mb-3">
+                            Add Another Note
+                        </h6>
+
+
+                        <form th:action="@{/orders/{id}/notes(id=${order.id})}"
+                              method="post">
+
+
+                            <textarea
+                                name="note"
+                                class="form-control mb-3"
+                                rows="4"
+                                maxlength="2000"
+                                placeholder="Enter your note here..."
+                                required></textarea>
+
+
+                            <button type="submit"
+                                    class="btn btn-primary">
+
+                                Save Note
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 EDIT ORDER
+                 ========================= -->
+
+            <div class="card section-card">
+
+                <div class="card-body p-4">
+
+                    <div class="section-title">
+                        Edit Order
+                    </div>
+
+
+                    <form th:action="@{/orders/{id}/update(id=${order.id})}"
+                          th:object="${order}"
+                          method="post">
+
+
+                        <div class="row g-4">
+
+
+                            <div class="col-md-6">
+
+                                <label class="form-label fw-semibold">
+                                    Order Number
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       th:field="*{orderNumber}"
+                                       required>
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label class="form-label fw-semibold">
+                                    Status
+                                </label>
+
+                                <select class="form-select"
+                                        th:field="*{status}">
+
+                                    <option value="PROCESSING">
+                                        Processing
+                                    </option>
+
+                                    <option value="SOURCED">
+                                        Sourced
+                                    </option>
+
+                                    <option value="HOLD">
+                                        Hold
+                                    </option>
+
+                                    <option value="CANCELLED">
+                                        Cancelled
+                                    </option>
+
+                                    <option value="PENDING_PAYMENT">
+                                        Pending Payment
+                                    </option>
+
+                                    <option value="PAYMENT_COMPLETED">
+                                        Payment Completed
+                                    </option>
+
+                                    <option value="OUT_OF_DELIVERY">
+                                        Out of Delivery
+                                    </option>
+
+                                    <option value="COMPLETED">
+                                        Completed
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label class="form-label fw-semibold">
+                                    Customer Name
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       th:field="*{customerName}"
+                                       required>
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label class="form-label fw-semibold">
+                                    Receiver Name
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       th:field="*{receiverName}"
+                                       required>
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label class="form-label fw-semibold">
+                                    Phone Number
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       th:field="*{phoneNumber}"
+                                       required>
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label class="form-label fw-semibold">
+                                    Email
+                                </label>
+
+                                <input type="email"
+                                       class="form-control"
+                                       th:field="*{email}">
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label class="form-label fw-semibold">
+                                    Origin
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       th:field="*{origin}"
+                                       required>
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label class="form-label fw-semibold">
+                                    Customer Location
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       th:field="*{location}"
+                                       required>
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label class="form-label fw-semibold">
+                                    Vendor
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       th:field="*{vendor}"
+                                       placeholder="Enter vendor">
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label class="form-label fw-semibold">
+                                    Sourcing Person
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       th:field="*{sourcingPerson}"
+                                       placeholder="Enter sourcing person">
+
+                            </div>
+
+
+                            <div class="col-12">
+
+                                <label class="form-label fw-semibold">
+                                    Vendor Address
+                                </label>
+
+                                <textarea
+                                    class="form-control"
+                                    rows="3"
+                                    th:field="*{address}"
+                                    placeholder="Enter vendor address"></textarea>
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label class="form-label fw-semibold">
+                                    Price
+                                </label>
+
+                                <input type="number"
+                                       class="form-control"
+                                       step="0.01"
+                                       min="0"
+                                       th:field="*{price}"
+                                       placeholder="Enter price">
+
+                            </div>
+
+
+                            <div class="col-12">
+
+                                <label class="form-label fw-semibold">
+                                    Description
+                                </label>
+
+                                <textarea
+                                    class="form-control"
+                                    rows="4"
+                                    th:field="*{description}"></textarea>
+
+                            </div>
+
+
+                            <div class="col-12">
+
+                                <button type="submit"
+                                        class="btn btn-success">
+
+                                    Save Changes
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             BOTTOM BAR
+             ========================= -->
+
+        <div class="action-bar">
+
+            <div class="d-flex justify-content-between
+                        align-items-center flex-wrap gap-2">
+
+                <a href="/orders"
+                   class="btn btn-outline-secondary">
+
+                    ← Back to Orders
+
+                </a>
+
+                <button type="button"
+                        class="btn btn-outline-primary"
+                        onclick="window.print()">
+
+                    Print
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+</body>
+
+</html>
