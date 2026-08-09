@@ -63,9 +63,7 @@
             font-weight: 500;
         }
 
-        /* =========================
-           STATUS COLORS
-           ========================= */
+        /* STATUS */
 
         .status-badge {
             padding: 8px 14px;
@@ -115,9 +113,12 @@
             color: white;
         }
 
-        /* =========================
-           PRODUCT
-           ========================= */
+        .status-default {
+            background: #6c757d;
+            color: white;
+        }
+
+        /* PRODUCTS */
 
         .product-card {
             border: 1px solid #dee2e6;
@@ -145,9 +146,7 @@
             border-radius: 8px;
         }
 
-        /* =========================
-           NOTES
-           ========================= */
+        /* NOTES */
 
         .note-item {
             border-left: 4px solid #0d6efd;
@@ -195,9 +194,7 @@
     <div class="card shadow main-card">
 
 
-        <!-- =========================
-             HEADER
-             ========================= -->
+        <!-- HEADER -->
 
         <div class="header">
 
@@ -236,9 +233,7 @@
         <div class="card-body p-4">
 
 
-            <!-- =========================
-                 SUCCESS MESSAGE
-                 ========================= -->
+            <!-- SUCCESS MESSAGE -->
 
             <div th:if="${successMessage}"
                  class="alert alert-success">
@@ -250,9 +245,7 @@
             </div>
 
 
-            <!-- =========================
-                 ORDER DETAILS
-                 ========================= -->
+            <!-- ORDER DETAILS -->
 
             <div class="card section-card">
 
@@ -264,6 +257,8 @@
 
                     <div class="row g-4">
 
+
+                        <!-- ORDER NUMBER -->
 
                         <div class="col-md-4">
 
@@ -287,23 +282,49 @@
                                 Status
                             </div>
 
+
+                            <!-- NULL SAFE STATUS -->
+
                             <span class="status-badge"
-                                  th:classappend="${order.status.name() == 'PROCESSING'
-                                      ? ' status-processing' :
+                                  th:classappend="${
+                                      order.status == null
+                                      ? ' status-default'
+                                      :
+                                      order.status.name() == 'PROCESSING'
+                                      ? ' status-processing'
+                                      :
                                       order.status.name() == 'SOURCED'
-                                      ? ' status-sourced' :
+                                      ? ' status-sourced'
+                                      :
                                       order.status.name() == 'HOLD'
-                                      ? ' status-hold' :
+                                      ? ' status-hold'
+                                      :
                                       order.status.name() == 'CANCELLED'
-                                      ? ' status-cancelled' :
+                                      ? ' status-cancelled'
+                                      :
                                       order.status.name() == 'PENDING_PAYMENT'
-                                      ? ' status-pending' :
+                                      ? ' status-pending'
+                                      :
                                       order.status.name() == 'PAYMENT_COMPLETED'
-                                      ? ' status-payment' :
+                                      ? ' status-payment'
+                                      :
                                       order.status.name() == 'OUT_OF_DELIVERY'
-                                      ? ' status-delivery' :
-                                      ' status-completed'}"
-                                  th:text="${#strings.replace(order.status.name(), '_', ' ')}">
+                                      ? ' status-delivery'
+                                      :
+                                      order.status.name() == 'COMPLETED'
+                                      ? ' status-completed'
+                                      :
+                                      ' status-default'
+                                  }"
+                                  th:text="${
+                                      order.status == null
+                                      ? 'PROCESSING'
+                                      : #strings.replace(
+                                          order.status.name(),
+                                          '_',
+                                          ' '
+                                      )
+                                  }">
 
                                 PROCESSING
 
@@ -311,6 +332,8 @@
 
                         </div>
 
+
+                        <!-- PRICE -->
 
                         <div class="col-md-4">
 
@@ -321,9 +344,11 @@
                             <div class="value">
 
                                 <span th:if="${order.price != null}">
+
                                     ₹<span th:text="${order.price}">
                                         0.00
                                     </span>
+
                                 </span>
 
                                 <span th:if="${order.price == null}">
@@ -334,6 +359,8 @@
 
                         </div>
 
+
+                        <!-- VENDOR -->
 
                         <div class="col-md-4">
 
@@ -350,6 +377,8 @@
                         </div>
 
 
+                        <!-- SOURCING PERSON -->
+
                         <div class="col-md-4">
 
                             <div class="label">
@@ -364,6 +393,8 @@
 
                         </div>
 
+
+                        <!-- VENDOR ADDRESS -->
 
                         <div class="col-md-4">
 
@@ -380,6 +411,8 @@
                         </div>
 
 
+                        <!-- CUSTOMER LOCATION -->
+
                         <div class="col-md-6">
 
                             <div class="label">
@@ -387,12 +420,15 @@
                             </div>
 
                             <div class="value"
-                                 th:text="${order.location}">
+                                 th:text="${order.location != null
+                                    ? order.location : '-'}">
                                 -
                             </div>
 
                         </div>
 
+
+                        <!-- ORIGIN -->
 
                         <div class="col-md-6">
 
@@ -401,7 +437,8 @@
                             </div>
 
                             <div class="value"
-                                 th:text="${order.origin}">
+                                 th:text="${order.origin != null
+                                    ? order.origin : '-'}">
                                 -
                             </div>
 
@@ -414,9 +451,7 @@
             </div>
 
 
-            <!-- =========================
-                 CUSTOMER DETAILS
-                 ========================= -->
+            <!-- CUSTOMER DETAILS -->
 
             <div class="card section-card">
 
@@ -428,6 +463,7 @@
 
                     <div class="row g-4">
 
+
                         <div class="col-md-6">
 
                             <div class="label">
@@ -435,7 +471,8 @@
                             </div>
 
                             <div class="value"
-                                 th:text="${order.customerName}">
+                                 th:text="${order.customerName != null
+                                    ? order.customerName : '-'}">
                                 -
                             </div>
 
@@ -449,7 +486,8 @@
                             </div>
 
                             <div class="value"
-                                 th:text="${order.receiverName}">
+                                 th:text="${order.receiverName != null
+                                    ? order.receiverName : '-'}">
                                 -
                             </div>
 
@@ -463,7 +501,8 @@
                             </div>
 
                             <div class="value"
-                                 th:text="${order.phoneNumber}">
+                                 th:text="${order.phoneNumber != null
+                                    ? order.phoneNumber : '-'}">
                                 -
                             </div>
 
@@ -506,9 +545,7 @@
             </div>
 
 
-            <!-- =========================
-                 PART DETAILS
-                 ========================= -->
+            <!-- PART DETAILS -->
 
             <div class="card section-card">
 
@@ -519,7 +556,8 @@
                     </div>
 
                     <div class="value"
-                         th:text="${order.partDetails}">
+                         th:text="${order.partDetails != null
+                            ? order.partDetails : '-'}">
                         -
                     </div>
 
@@ -528,9 +566,7 @@
             </div>
 
 
-            <!-- =========================
-                 PRODUCTS
-                 ========================= -->
+            <!-- PRODUCTS -->
 
             <div class="card section-card">
 
@@ -541,7 +577,8 @@
                     </div>
 
 
-                    <div th:if="${#lists.isEmpty(order.products)}"
+                    <div th:if="${order.products == null
+                                or #lists.isEmpty(order.products)}"
                          class="alert alert-info">
 
                         No products added to this order.
@@ -549,8 +586,10 @@
                     </div>
 
 
-                    <div th:each="product, stat : ${order.products}"
+                    <div th:if="${order.products != null}"
+                         th:each="product, stat : ${order.products}"
                          class="product-card">
+
 
                         <div class="product-title mb-3">
 
@@ -572,7 +611,8 @@
                                 </div>
 
                                 <div class="value"
-                                     th:text="${product.productName}">
+                                     th:text="${product.productName != null
+                                        ? product.productName : '-'}">
                                     -
                                 </div>
 
@@ -628,7 +668,8 @@
                                     </div>
 
 
-                                    <div th:each="image : ${product.images}"
+                                    <div th:if="${product.images != null}"
+                                         th:each="image : ${product.images}"
                                          class="col-lg-3 col-md-4 col-sm-6">
 
                                         <div class="image-box">
@@ -654,21 +695,14 @@
             </div>
 
 
-            <!-- =========================
-                 NOTES
-                 ========================= -->
+            <!-- NOTES -->
 
             <div class="card section-card">
 
                 <div class="card-body p-4">
 
-                    <div class="d-flex justify-content-between
-                                align-items-center mb-3">
-
-                        <div class="section-title mb-0">
-                            Order Notes
-                        </div>
-
+                    <div class="section-title">
+                        Order Notes
                     </div>
 
 
@@ -689,10 +723,11 @@
 
                                 Added:
 
-                                <span th:text="${#temporals.format(
-                                    orderNote.createdAt,
-                                    'dd-MM-yyyy HH:mm'
-                                )}">
+                                <span th:if="${orderNote.createdAt != null}"
+                                      th:text="${#temporals.format(
+                                          orderNote.createdAt,
+                                          'dd-MM-yyyy HH:mm'
+                                      )}">
                                     09-08-2026 18:30
                                 </span>
 
@@ -723,9 +758,9 @@
                         </h6>
 
 
-                        <form th:action="@{/orders/{id}/notes(id=${order.id})}"
-                              method="post">
-
+                        <form
+                            th:action="@{/orders/{id}/notes(id=${order.id})}"
+                            method="post">
 
                             <textarea
                                 name="note"
@@ -752,9 +787,7 @@
             </div>
 
 
-            <!-- =========================
-                 EDIT ORDER
-                 ========================= -->
+            <!-- EDIT ORDER -->
 
             <div class="card section-card">
 
@@ -765,9 +798,10 @@
                     </div>
 
 
-                    <form th:action="@{/orders/{id}/update(id=${order.id})}"
-                          th:object="${order}"
-                          method="post">
+                    <form
+                        th:action="@{/orders/{id}/update(id=${order.id})}"
+                        th:object="${order}"
+                        method="post">
 
 
                         <div class="row g-4">
@@ -787,6 +821,8 @@
                             </div>
 
 
+                            <!-- STATUS SELECT -->
+
                             <div class="col-md-6">
 
                                 <label class="form-label fw-semibold">
@@ -795,6 +831,10 @@
 
                                 <select class="form-select"
                                         th:field="*{status}">
+
+                                    <option value="">
+                                        Processing
+                                    </option>
 
                                     <option value="PROCESSING">
                                         Processing
@@ -984,7 +1024,8 @@
                                 <textarea
                                     class="form-control"
                                     rows="4"
-                                    th:field="*{description}"></textarea>
+                                    th:field="*{description}">
+                                </textarea>
 
                             </div>
 
@@ -1011,9 +1052,7 @@
         </div>
 
 
-        <!-- =========================
-             BOTTOM BAR
-             ========================= -->
+        <!-- BOTTOM BAR -->
 
         <div class="action-bar">
 
@@ -1043,11 +1082,6 @@
     </div>
 
 </div>
-
-
-<script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
-</script>
 
 </body>
 
